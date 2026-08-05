@@ -12,21 +12,14 @@ import com.laomuji1999.compose.core.logic.database.dao.MessageDao
 import com.laomuji1999.compose.core.logic.model.entity.MessageInfoEntity
 import com.laomuji1999.compose.core.logic.notification.NotificationHelper
 import com.laomuji1999.compose.core.logic.repository.chat.ChatRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import java.util.concurrent.Executors
 
 internal class GoogleAiChat(
     private val contactDao: ContactDao,
     private val messageDao: MessageDao,
     private val notificationHelper: NotificationHelper
 ) : ChatRepository {
-
-    private val coroutineScope =
-        CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
 
     private suspend fun getHistory(account: Long) =
         messageDao.getMessageList(account = account).first().map { message ->
@@ -41,7 +34,7 @@ internal class GoogleAiChat(
             }
         }
 
-    override fun sendMessage(
+    override suspend fun sendMessage(
         account: Long,
         text: String,
         nickname: String
@@ -65,26 +58,26 @@ internal class GoogleAiChat(
                 SafetySetting(HarmCategory.DANGEROUS_CONTENT, HarmBlockThreshold.NONE)
             )
         )
-        coroutineScope.launch {
-            try {
-                generativeModel.startChat(history = getHistory(account = account))
-                    .sendMessage(text).text
-            } catch (e: Exception) {
-                e.message
-            }?.let {
-                val filterText = if (it.endsWith("\n")) {
-                    it.substring(0, it.length - 1)
-                } else {
-                    it
-                }
-                val messageInfoEntity = MessageInfoEntity(
-                    account = account,
-                    text = filterText,
-                    isSend = false
-                )
-                messageDao.insert(messageInfoEntity)
+        try {
+            generativeModel.startChat(history = getHistory(account = account))
+                .sendMessage(text).text
+        } catch (e: Exception) {
+            e.message
+        }?.let {
+            val filterText = if (it.endsWith("\n")) {
+                it.substring(0, it.length - 1)
+            } else {
+                it
+            }
+            val messageInfoEntity = MessageInfoEntity(
+                account = account,
+                text = filterText,
+                isSend = false
+            )
+            messageDao.insert(messageInfoEntity)
+            contactDao.getByAccount(account)?.let { contact ->
                 notificationHelper.showNotification(
-                    contactInfoEntity = contactDao.getByAccount(account),
+                    contactInfoEntity = contact,
                     messageInfoEntity = messageInfoEntity
                 )
             }

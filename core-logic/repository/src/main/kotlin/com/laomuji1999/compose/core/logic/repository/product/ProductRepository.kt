@@ -8,7 +8,6 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import kotlinx.coroutines.delay
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,7 +24,6 @@ class ProductRepository @Inject constructor(
                     parameter("limit", 10)
                     parameter("skip", page * 10)
                 }
-            delay(1000)
             response.body()
         }
     }

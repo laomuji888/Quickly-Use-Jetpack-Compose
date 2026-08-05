@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MessageDao {
-    @Query("SELECT * FROM MessageInfoEntity WHERE account = :account ORDER BY timestamp DESC")
+    @Query("SELECT * FROM MessageInfoEntity WHERE account = :account ORDER BY timestamp DESC, messageId DESC")
     fun getMessageList(account:Long): Flow<List<MessageInfoEntity>>
 
     @Insert
-    fun insert(messageInfoEntity: MessageInfoEntity)
+    suspend fun insert(messageInfoEntity: MessageInfoEntity)
 }

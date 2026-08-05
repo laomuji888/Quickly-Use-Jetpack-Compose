@@ -42,8 +42,12 @@ class ChatScreenViewModel @AssistedInject constructor(
     private val _messageList = MutableStateFlow<List<MessageInfoEntity>>(emptyList())
 
     init {
-        ioCoroutineScope.launch {
-            _contactInfo.value = contactDao.getByAccount(account)
+        viewModelScope.launch {
+            try {
+                _contactInfo.value = contactDao.getByAccount(account)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
             chatRepository.getMessageList(account).collect {
                 _messageList.value = it
             }
@@ -77,12 +81,17 @@ class ChatScreenViewModel @AssistedInject constructor(
 
     private fun sendInputText() {
         val contactInfo = _contactInfo.value ?: return
-        if (_inputText.value.isEmpty()) {
+        val text = _inputText.value
+        if (text.isEmpty()) {
             return
         }
+        _inputText.value = ""
         ioCoroutineScope.launch {
-            chatRepository.sendMessage(contactInfo.account, _inputText.value, contactInfo.nickname)
-            _inputText.value = ""
+            try {
+                chatRepository.sendMessage(contactInfo.account, text, contactInfo.nickname)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 

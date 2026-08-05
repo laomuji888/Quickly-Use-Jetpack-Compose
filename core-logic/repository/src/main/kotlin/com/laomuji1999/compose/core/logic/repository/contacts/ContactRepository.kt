@@ -2,7 +2,6 @@ package com.laomuji1999.compose.core.logic.repository.contacts
 
 import com.laomuji1999.compose.core.logic.database.dao.ContactDao
 import com.laomuji1999.compose.core.logic.model.entity.ContactInfoEntity
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -17,11 +16,9 @@ class ContactRepository @Inject constructor(
         val cacheContact = contactDao.getAll()
         emit(cacheContact)
 
-        //这里用假数据代替,实际应该不管是否为空都要从后台获取
-        if(cacheContact.isNotEmpty()){
-            delay(1000)
-        }
-        val contacts = fakeRequestContacts() + fakeRandomContacts()
+        val contacts = (fakeRequestContacts() + fakeRandomContacts()).sortedWith(
+            compareBy<ContactInfoEntity> { it.category }.thenBy { it.account }
+        )
         contactDao.insertAll(contacts)
         emit(contacts)
     }.catch {

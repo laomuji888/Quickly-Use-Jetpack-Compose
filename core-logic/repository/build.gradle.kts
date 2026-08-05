@@ -22,4 +22,12 @@ dependencies {
 
     //google ai
     implementation(libs.firebase.ai)
+
+    testImplementation(project(":core-logic:common"))
+    testImplementation(testFixtures(project(":core-logic:common")))
+    testImplementation(libs.junit4)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.ktor.client.mock)
 }

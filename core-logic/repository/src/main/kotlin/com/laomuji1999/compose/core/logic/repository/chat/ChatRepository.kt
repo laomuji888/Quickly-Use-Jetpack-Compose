@@ -6,7 +6,7 @@ import javax.inject.Singleton
 
 @Singleton
 interface ChatRepository {
-    fun sendMessage(
+    suspend fun sendMessage(
         account: Long,
         text: String,
         nickname: String

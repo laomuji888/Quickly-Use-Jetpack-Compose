@@ -17,6 +17,10 @@ interface Cache {
 
     fun getBoolean(key: String, defValue: Boolean):Boolean
 
+    fun putDouble(key: String, value: Double)
+
+    fun getDouble(key: String, defValue: Double):Double
+
     fun putString(key: String, value: String?)
 
     fun getString(key: String, defValue: String):String

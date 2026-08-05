@@ -54,6 +54,16 @@ internal class CacheAndroid(
         return sharedPreferences.getBoolean(key, defValue)
     }
 
+    override fun putDouble(key: String, value: Double) {
+        val editor = getEditor()
+        editor.putString(key, value.toString())
+        editor.commit()
+    }
+
+    override fun getDouble(key: String, defValue: Double): Double {
+        return sharedPreferences.getString(key, null)?.toDoubleOrNull() ?: defValue
+    }
+
     override fun putString(key: String, value: String?) {
         val editor = getEditor()
         editor.putString(key, value)
